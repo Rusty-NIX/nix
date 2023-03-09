@@ -1,8 +1,10 @@
 mod base;
+mod db;
 use base::keys;
 use base::round;
-
-use crate::base::verify;
+use base::verify;
+use db::db;
+use base::mine;
 fn main() {
     println!("Hello");
     println!("{}", round(1.0299));
@@ -20,4 +22,6 @@ fn main() {
         ],
         "hello world!",
     );
+    db();
+    mine("si".to_string());
 }

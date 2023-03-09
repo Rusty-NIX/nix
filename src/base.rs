@@ -1,13 +1,18 @@
 use hex::{encode, ToHex};
 use ring::{
+    aead::Tag,
     rand,
-    signature::{self, KeyPair, Signature}, aead::Tag,
+    signature::{self, KeyPair, Signature},
 };
 use sha2::{Digest, Sha256, Sha512};
 
+pub fn print_type_of<T>(_: &T) {
+    println!("{}", std::any::type_name::<T>())
+}
+
 pub fn hash_str(s: &str) -> Vec<u8> {
     let mut hasher = Sha512::new();
-    hasher.update(&s);
+    hasher.update(&s.as_bytes());
     let result = hasher.finalize();
     return result.to_vec();
 }
@@ -26,7 +31,7 @@ pub fn keys() {
     println!("PB KEY {:?}", peer_public_key_bytes);
     let msg = b"hello world!";
     let fmsg = b"not the hello world!";
-    let sig= key_pair.sign(msg);
+    let sig = key_pair.sign(msg);
     println!("\nSignature: {:?}", &sig.as_ref());
     let peer_public_key =
         signature::UnparsedPublicKey::new(&signature::ED25519, peer_public_key_bytes);
@@ -39,10 +44,18 @@ pub fn bytes_to_ascii(byt: Vec<u8>) -> String {
     data.to_owned()
 }
 
-pub fn verify(pub_key:&[u8], sig:&[u8], msg:&str) {
+pub fn verify(pub_key: &[u8], sig: &[u8], msg: &str) {
     let peer_public_key_bytes = pub_key.as_ref();
     let peer_public_key =
         signature::UnparsedPublicKey::new(&signature::ED25519, peer_public_key_bytes);
     let vef = peer_public_key.verify(&msg.as_bytes(), &sig).is_ok();
-    println!("{:?}",vef);
+    println!("{:?}", vef);
 }
+pub fn mine(s: String) -> i32{
+    let mut h = 0;
+    while &hash_str(&(h.to_string()+&s.to_string()))[..2] != &[00,00] {
+        h+=1;
+    }
+    return h;
+}
+
